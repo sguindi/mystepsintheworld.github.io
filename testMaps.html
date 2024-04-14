@@ -22,7 +22,7 @@
 <script>
     var map = L.map('map').setView([0, 0], 2);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?apikey=0869fd73bdae4939890a8fb59bf494e7', {
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© opentopomap contributors'
     }).addTo(map);
 
@@ -55,7 +55,24 @@
             }
         }).on('loaded', function (e) {
             map.fitBounds(e.target.getBounds());
+            
         }).addTo(map);
+                // Extract date from GPX file
+                var gpxData = new XMLHttpRequest();
+                gpxData.open("GET", gpx.path, true);
+                gpxData.onreadystatechange = function () {
+                    if (gpxData.readyState === 4 && gpxData.status === 200) {
+                        var xmlDoc = gpxData.responseXML;
+                        var dateNodes = xmlDoc.getElementsByTagName("time");
+                        if (dateNodes.length > 0) {
+                            var date = new Date(dateNodes[0].textContent);
+                            var dateString = date.toDateString();
+                            gpxLayer.bindPopup(dateString);
+                        }
+                    }
+                };
+                gpxData.send();
+        
     });
 </script>
 
