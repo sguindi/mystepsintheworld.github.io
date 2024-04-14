@@ -22,18 +22,22 @@
 <script>
     var map = L.map('map').setView([0, 0], 2);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© opentopomap contributors'
+   // Add Esri World Imagery as the base layer
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles © Esri'
     }).addTo(map);
-
+  
     var gpxFiles = [
         { path: 'gpx/All_shvil-israel.gpx', color: 'yellow', weight : '5',opacity:'0.3'},
         { path: 'gpx/Shvil_israel_2_Banias_Sde_Nehamia.gpx', color: 'blue', weight : '5',opacity:'1'},
+        { path: 'gpx/Shvil_Israel_12_Nof_hagalil_kfar_tabor.gpx',color: 'white', weight: '5',opacity:'1'},
+        { path: 'gpx/Shvil_israel_13_zipori_raas_ali.gpx',color: 'orange', weight: '5',opacity:'1'},
+        { path: 'gpx/Shvil_israel_14_Raas_ali_Yagur.gpx', color: 'blue', weight: '5',opacity:'1'},
+        { path: 'gpx/Shvil_israel_15_yagur_nahal_oren.gpx',color: 'white', weight: '5',opacity:'1'},
         { path: 'gpx/Shvil_israel_37_Arad_kfar_nokdim.gpx', color: 'orange', weight: '5',opacity:'1'},
-        { path: 'gpx/Shvil_israel_38_kfar_nokdim_masada.gpx', color: 'blue', weight: '5',opacity:'1'},
-        { path: 'gpx/Shvil_israel_14_Raas_ali_Yagur.gpx', color: 'orange', weight: '5',opacity:'1'},
-        { path: 'gpx/Shvil_israel_13_zipori_raas_ali.gpx',color: 'blue', weight: '5',opacity:'1'},
-        { path: 'gpx/Shvil_Israel_12_Nof_hagalil_kfar_tabor.gpx',color: 'orange', weight: '5',opacity:'1'}
+        { path: 'gpx/Shvil_israel_38_kfar_nokdim_masada.gpx', color: 'blue', weight: '5',opacity:'1'}
+        
+     
 
 
         
