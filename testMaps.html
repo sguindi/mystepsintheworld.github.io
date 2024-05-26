@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Display Multiple GPX Files on Map</title>
+    <title>Display GPX Files on Custom Base Map</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
@@ -13,43 +13,157 @@
             height: 100%;
             margin: 0;
         }
+        #map {
+            width: 80%; /* Adjust width as needed */
+            height: 80%; /* Adjust height as needed */
+            margin: auto; /* Center the map horizontally */
+        }
+        
+        #menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+            background-color: #f0f0f0;
+            padding: 20px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none; /* Hide menu by default */
+        }
+
+        #menu.show {
+            display: block; /* Show menu when toggled */
+        }
+        #fileList label {
+            display: block; /* Display each checkbox on a separate line */
+        }
+
+        @media only screen and (max-width: 768px) {
+            #menu {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
+
+<div id="menu">
+    <h2>Select GPX Files:</h2>
+
+    <div id="fileList"></div>
+</div>
 
 <div id="map"></div>
 
 <script>
     var map = L.map('map').setView([0, 0], 2);
 
-   // Add Esri World Imagery as the base layer
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles © Esri'
-    }).addTo(map);
-  
+        attribution: '© opentopomap contributors'
+     }).addTo(map);
+
+
     var gpxFiles = [
         { path: 'gpx/All_shvil-israel.gpx', color: 'yellow', weight : '5',opacity:'0.3'},
         { path: 'gpx/Shvil_israel_2_Banias_Sde_Nehamia.gpx', color: 'blue', weight : '5',opacity:'1'},
-        { path: 'gpx/Shvil_Israel_12_Nof_hagalil_kfar_tabor.gpx',color: 'white', weight: '5',opacity:'1'},
-        { path: 'gpx/Shvil_israel_13_zipori_raas_ali.gpx',color: 'orange', weight: '5',opacity:'1'},
-        { path: 'gpx/Shvil_israel_14_Raas_ali_Yagur.gpx', color: 'blue', weight: '5',opacity:'1'},
-        { path: 'gpx/Shvil_israel_15_yagur_nahal_oren.gpx',color: 'white', weight: '5',opacity:'1'},
+        { path: 'gpx/Shvil_israel_13_zipori_raas_ali.gpx',color: 'blue', weight: '5',opacity:'1'},
+        { path: 'gpx/Shvil_israel_14_Raas_ali_Yagur.gpx', color: 'orange', weight: '5',opacity:'1'},
+        { path: 'gpx/Shvil_israel_15_yagur_nahal_oren.gpx',color: 'white', weight: '5',opacity:'1'},  
         { path: 'gpx/Shvil_israel_37_Arad_kfar_nokdim.gpx', color: 'orange', weight: '5',opacity:'1'},
-        { path: 'gpx/Shvil_israel_38_kfar_nokdim_masada.gpx', color: 'blue', weight: '5',opacity:'1'}
-        
-     
+        { path: 'gpx/Shvil_israel_38_kfar_nokdim_masada.gpx', color: 'blue', weight: '5',opacity:'1'},
 
 
-        
-    ];
+        { path: 'gpx2/1.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/2.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/3.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/4.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/5.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/6.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/7.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/8.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/9.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/10.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/11.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/12.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/13.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/14.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/15.gpx', color: 'purple', weight: '5',opacity:'1'},
 
-    gpxFiles.forEach(function (gpx) {
-        new L.GPX(gpx.path, {
+
+        { path: 'gpx2/Morning_Walk1.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_21.1.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_21.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_crater_ramon.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_israel_22.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_israel_23_.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_israel_26.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_israel_28.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_israel_2.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_israel_30.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_israel_31.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_Israel_.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_Israel_2.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_Israel_3.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_Israel_4.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_Israel_5.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_Israel_7.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_Israel_9.gpx', color: 'purple', weight: '5',opacity:'1'},
+
+        { path: 'gpx2/Shvil_Israel_Eilat.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_Israel_Eilat1.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_Israel_Eilat_3.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_Israel_Eilat_4.gpx', color: 'purple', weight: '5',opacity:'1'},
+
+        { path: 'gpx2/Shvil_Nahal_nekarot.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Shvil_Nahal_nekarot_1.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Training_for_Kilimanjaro_.gpx', color: 'purple', weight: '5',opacity:'1'},
+        { path: 'gpx2/Training_to_Kilimanjaro_.gpx', color: 'purple', weight: '5',opacity:'1'},
+
+
+
+
+
+
+    ]    
+
+    var fileList = document.getElementById('fileList');
+
+    gpxFiles.forEach(function (gpx, index) {
+        // Create checkbox element
+        var checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = 'file' + index;
+        checkbox.value = gpx.path;
+
+        // Create label for checkbox
+        var label = document.createElement('label');
+        label.htmlFor = 'file' + index;
+        label.appendChild(document.createTextNode(gpx.path));
+
+        // Append checkbox and label to fileList
+        fileList.appendChild(checkbox);
+        fileList.appendChild(label);
+
+        // Add event listener to checkbox
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                loadGPX(gpx.path, gpx.color, gpx.weight, gpx.opacity);
+            } else {
+                removeGPX(gpx.path);
+            }
+        });
+         // Trigger 'change' event for each checkbox to toggle them
+         checkbox.dispatchEvent(new Event('change'));
+    });
+
+    function loadGPX(path, color, weight, opacity) {
+        new L.GPX(path, {
             async: true,
             polyline_options: {
-                color: gpx.color,
-                weight: gpx.weight,
-                opacity: gpx.opacity
+                color: color,
+                weight: weight,
+                opacity: opacity
             },
             marker_options: {
                 startIconUrl: null,  // Disable start marker
@@ -59,27 +173,25 @@
             }
         }).on('loaded', function (e) {
             map.fitBounds(e.target.getBounds());
-            
         }).addTo(map);
-                // Extract date from GPX file
-                var gpxData = new XMLHttpRequest();
-                gpxData.open("GET", gpx.path, true);
-                gpxData.onreadystatechange = function () {
-                    if (gpxData.readyState === 4 && gpxData.status === 200) {
-                        var xmlDoc = gpxData.responseXML;
-                        var dateNodes = xmlDoc.getElementsByTagName("time");
-                        if (dateNodes.length > 0) {
-                            var date = new Date(dateNodes[0].textContent);
-                            var dateString = date.toDateString();
-                            gpxLayer.bindPopup(dateString);
-                        }
-                    }
-                };
-                gpxData.send();
-        
+    }
+
+    function removeGPX(path) {
+        // Remove GPX layer from map
+        // You need to implement this based on your requirements
+    }
+
+    // Toggle menu visibility on mobile
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('menuButton').addEventListener('click', function() {
+            var menu = document.getElementById('menu');
+            menu.classList.toggle('show');
+        });
     });
 </script>
 
+<!-- Button to toggle menu visibility on mobile -->
+<button id="menuButton">Toggle Menu</button>
+
 </body>
 </html>
-
