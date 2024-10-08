@@ -61,25 +61,32 @@
             position: fixed;
             top: 20px; /* Distance from the top */
             right: 20px; /* Distance from the right */
-            background-color: #007bff; /* Modern blue color */
-            color: white;
+            background-color: transparent; 
             border: none;
-            border-radius: 50px; /* Round the corners to create a pill-shaped button */
-            padding: 10px 20px; /* Increase padding for a larger clickable area */
-            font-size: 16px; /* Make the text a bit larger */
+            padding:0; /* Increase padding for a larger clickable area */
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
             transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
             z-index: 2000; /* Ensure it is on top of the map */
         }
         
         #menuButton:hover {
-            background-color: #0056b3; /* Darker blue on hover */
+            background-color: transparent; /* Darker blue on hover */
             box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3); /* Increase shadow on hover */
         }
         
         #menuButton:active {
-            background-color: #003d80; /* Even darker blue when clicked */
+            background-color: transparent; /* Even darker blue when clicked */
+        }
+        #menuButton img {
+            width: 30px; /* Adjust to desired size */
+            height: 30px; /* Adjust to desired size */
+            border-radius: 50%; /* Keeps the image circular */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: box-shadow 0.3s ease;
+        }
+    
+        #menuButton img:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
         
         @media only screen and (max-width: 768px) {
@@ -100,7 +107,9 @@
 <div id="map"></div>
 
 <!-- Button to toggle menu visibility on mobile -->
-<button id="menuButton"><i class="fas fa-bars"></i></button>
+<button id="menuButton">
+    <img src="shvil.jpeg" alt="Menu">
+</button>
 
 
 <script>
