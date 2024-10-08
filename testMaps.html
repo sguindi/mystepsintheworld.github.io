@@ -7,54 +7,101 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
     <style>
-        /* Set the map container to cover the entire viewport */
-        body, html, #map {
+        body, html {
             height: 100%;
             margin: 0;
         }
         #map {
-            width: 80%; /* Adjust width as needed */
-            height: 80%; /* Adjust height as needed */
-            margin: auto; /* Center the map horizontally */
+            width: 98%; /* Adjust width as needed */
+            height: 98%; /* Adjust height as needed */
+            margin: 2px auto; /* Center the map horizontally and add vertical space */
+            border: 5px solid #ccc; /* Light gray border */
+            border-radius: 10px; /* Rounded corners for the frame */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Soft shadow for the framed look */
+            overflow: hidden; /* Prevent overflow of the map content */
+            background-color: #ffffff; /* Optional: white background to enhance framing */
         }
         
-        #menu {
+        .menu-container {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 250px;
-            height: 100%;
-            background-color: #f0f0f0;
+            top: 20px; /* Space from the top */
+            right: 20px; /* Space from the left */
+            background-color: #ffffff; /* White background */
             padding: 20px;
-            overflow-y: auto;
-            z-index: 1000;
-            display: none; /* Hide menu by default */
+            border-radius: 10px; /* Rounded corners */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Soft shadow */
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Smooth transition */
+            opacity: 0; /* Initially hidden */
+            transform: translateY(-20px); /* Slightly above its position */
+            z-index: 1000; /* Ensure it is on top */
         }
+        
+        .menu-container.show {
+            opacity: 1; /* Fully visible when shown */
+            transform: translateY(0); /* Normal position */
+        }
+        
+        #fileList {
+            display: flex;
+            flex-direction: column; /* Stack checkboxes vertically */
+        }
+        
+        #fileList div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+   
 
-        #menu.show {
-            display: block; /* Show menu when toggled */
+        #menuButton {
+            position: fixed;
+            top: 20px; /* Distance from the top */
+            right: 20px; /* Distance from the right */
+            background-color: #007bff; /* Modern blue color */
+            color: white;
+            border: none;
+            border-radius: 50px; /* Round the corners to create a pill-shaped button */
+            padding: 10px 20px; /* Increase padding for a larger clickable area */
+            font-size: 16px; /* Make the text a bit larger */
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
+            z-index: 2000; /* Ensure it is on top of the map */
         }
-        #fileList label {
-            display: block; /* Display each checkbox on a separate line */
+        
+        #menuButton:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3); /* Increase shadow on hover */
         }
-
+        
+        #menuButton:active {
+            background-color: #003d80; /* Even darker blue when clicked */
+        }
+        
         @media only screen and (max-width: 768px) {
             #menu {
-                width: 100%;
+                width: 70%;
             }
         }
     </style>
 </head>
 <body>
 
-<div id="menu">
+<div id="menu" class="menu-container">
     <h2>Select GPX Files:</h2>
-
     <div id="fileList"></div>
+
 </div>
 
 <div id="map"></div>
+
+<!-- Button to toggle menu visibility on mobile -->
+<button id="menuButton"><i class="fas fa-bars"></i></button>
+
 
 <script>
     var map = L.map('map').setView([0, 0], 2);
@@ -73,13 +120,23 @@
         { path: 'gpx/Shvil_israel_37_Arad_kfar_nokdim.gpx', color: 'orange', weight: '5',opacity:'1'},
         { path: 'gpx/Shvil_israel_38_kfar_nokdim_masada.gpx', color: 'blue', weight: '5',opacity:'1'},
         { path: 'gpx/Shvil_israel_17_ofer_ramat_hanadiv.gpx', color: 'orange', weight: '5',opacity:'1'},
-        { path: 'gpx/Shvil_Israel_12_Nof_hagalil_kfar_tabor.gpx', color: 'white', weight: '5',opacity:'1'}
+        { path: 'gpx/Shvil_Israel_12_Nof_hagalil_kfar_tabor.gpx', color: 'white', weight: '5',opacity:'1'},
+        { path: 'gpx/Shvil_Israel_28_Tzuba_ein_laban.gpx', color: 'blue', weight: '5',opacity:'1'}
 
     ]    
 
     var fileList = document.getElementById('fileList');
 
     gpxFiles.forEach(function (gpx, index) {
+        // Extract the number from the file path
+        var partNumber = gpx.path.match(/israel_(\d+)/i);
+
+        // Check if a number was found
+        if (partNumber) {
+            partNumber = partNumber[1];
+        } else {
+            partNumber = "Unknown"; // Or any other default value you prefer
+        }
         // Create checkbox element
         var checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
@@ -89,11 +146,14 @@
         // Create label for checkbox
         var label = document.createElement('label');
         label.htmlFor = 'file' + index;
-        label.appendChild(document.createTextNode(gpx.path));
+        label.appendChild(document.createTextNode("Part " + partNumber));
 
-        // Append checkbox and label to fileList
-        fileList.appendChild(checkbox);
-        fileList.appendChild(label);
+        var containerDiv = document.createElement('div');
+        containerDiv.appendChild(checkbox);
+        containerDiv.appendChild(label);
+
+        fileList.appendChild(containerDiv);
+
 
         // Add event listener to checkbox
         checkbox.addEventListener('change', function() {
@@ -133,15 +193,26 @@
 
     // Toggle menu visibility on mobile
     document.addEventListener('DOMContentLoaded', function() {
+        var zoomControl = document.querySelector('.leaflet-control-zoom'); // Select zoom controls
+
         document.getElementById('menuButton').addEventListener('click', function() {
             var menu = document.getElementById('menu');
             menu.classList.toggle('show');
+             // Toggle zoom controls visibility
+            if (menu.classList.contains('show')) {
+                zoomControl.style.display = 'none'; // Hide zoom controls
+            } else {
+                zoomControl.style.display = 'block'; // Show zoom controls
+            }
         });
+        
     });
+
+ 
+
+
 </script>
 
-<!-- Button to toggle menu visibility on mobile -->
-<button id="menuButton">Toggle Menu</button>
 
 </body>
 </html>
