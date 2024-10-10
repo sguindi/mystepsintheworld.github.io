@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Display GPX Files on Custom Base Map</title>
+    <title>Shvil Israel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
@@ -54,8 +54,6 @@
             align-items: center;
             margin-bottom: 10px;
         }
-        
-   
 
         #menuButton {
             position: fixed;
@@ -88,6 +86,17 @@
         #menuButton img:hover {
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
+        #statsContainer {
+            position: absolute; /* Position relative to the map */
+            bottom: 20px; /* Distance from the bottom */
+            left: 20px; /* Distance from the left */
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+            border: 1px solid #ccc; /* Border for better visibility */
+            border-radius: 8px; /* Rounded corners */
+            padding: 15px; /* Padding for some space */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+            z-index: 1002; /* Ensure it's above the map */
+        }
         
         @media only screen and (max-width: 768px) {
             #menu {
@@ -99,12 +108,12 @@
 <body>
 
 <div id="menu" class="menu-container">
-    <h2>Select GPX Files:</h2>
     <div id="fileList"></div>
 
 </div>
 
 <div id="map"></div>
+<div id="statsContainer"></div>
 
 <!-- Button to toggle menu visibility on mobile -->
 <button id="menuButton">
@@ -135,6 +144,7 @@
     ]    
 
     var fileList = document.getElementById('fileList');
+    var gpxLayers = {}; // Define gpxLayers in global scope
 
     gpxFiles.forEach(function (gpx, index) {
         // Extract the number from the file path
@@ -169,15 +179,18 @@
             if (this.checked) {
                 loadGPX(gpx.path, gpx.color, gpx.weight, gpx.opacity);
             } else {
-                removeGPX(gpx.path);
+                removeGPX(partNumber);
             }
         });
          // Trigger 'change' event for each checkbox to toggle them
          checkbox.dispatchEvent(new Event('change'));
     });
+    // Variables to store the total statistics across all selected files
+    let totalDistance = 0;
+    let totalElevationGain = 0;
 
     function loadGPX(path, color, weight, opacity) {
-        new L.GPX(path, {
+        var gpxLayer = new L.GPX(path, {
             async: true,
             polyline_options: {
                 color: color,
@@ -192,13 +205,71 @@
             }
         }).on('loaded', function (e) {
             map.fitBounds(e.target.getBounds());
+
+            // Extract statistics for the loaded GPX file
+        var stats = extractGPXStatistics(e.target);
+          // Add the statistics to the total
+          totalDistance += stats.distance;
+          totalElevationGain += stats.elevationGain;
+
+            // Display updated accumulative statistics
+        displayStatistics();
+
+
         }).addTo(map);
+
+         // Store the layer in the gpxLayers object with part number as key
+         gpxLayers[partNumber] = gpxLayer;
+    }
+    function extractGPXStatistics(gpxLayer) {
+        var totalDistance = 0;
+        var totalElevationGain = 0;
+       
+        // Loop through all the segments to calculate distance and elevation
+        var segments = gpxLayer.getLayers();
+        for (var i = 0; i < segments.length; i++) {
+            var latlngs = segments[i].getLatLngs();
+            for (var j = 1; j < latlngs.length; j++) {
+                totalDistance += latlngs[j - 1].distanceTo(latlngs[j]); // Calculate distance between points
+                
+                // Calculate elevation gain
+                var elevationChange = latlngs[j].alt - latlngs[j - 1].alt;
+                if (elevationChange > 0) {
+                    totalElevationGain += elevationChange;
+                }
+            }
+        }
+        
+        return {
+            distance: totalDistance,
+            elevationGain: totalElevationGain
+        };
+    }
+    function removeGPX(partNumber) {
+    // Remove the GPX layer associated with the partNumber
+    if (gpxLayers[partNumber]) {
+        map.removeLayer(gpxLayers[partNumber]);
+        // Reset the statistics for this part
+        var stats = extractGPXStatistics(gpxLayers[partNumber]);
+        totalDistance -= stats.distance;
+        totalElevationGain -= stats.elevationGain;
+
+        // Remove the layer from the gpxLayers object
+        delete gpxLayers[partNumber];
+
+        displayStatistics();
     }
 
-    function removeGPX(path) {
-        // Remove GPX layer from map
-        // You need to implement this based on your requirements
     }
+    function displayStatistics() {
+        var statsContainer = document.getElementById('statsContainer');
+        statsContainer.innerHTML = `
+            <p>Total Distance: ${(totalDistance / 1000).toFixed(2)} km</p>
+            <p>Total Elevation Gain: ${totalElevationGain.toFixed(2)} meters</p>
+        `;
+    }
+
+
 
     // Toggle menu visibility on mobile
     document.addEventListener('DOMContentLoaded', function() {
